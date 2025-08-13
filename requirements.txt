@@ -3,4 +3,4 @@ django-leaflet~=0.32.0
 Pillow~=11.3.0
 geopy~=2.4.1
 
-openwisp-utils[channels] @ https://github.com/Insatroute/openwisp-utils/tarball/main
+#pip install -e git+https://github.com/Insatroute/openwisp-utils.git@main#egg=openwisp_utils[channels]
