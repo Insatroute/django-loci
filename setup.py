@@ -15,7 +15,6 @@ def get_install_requires():
             line.startswith("#")
             or line == ""
             or line.startswith("http")
-            or line.startswith("git")
         ):
             continue
         # add line to requirements
@@ -31,8 +30,8 @@ setup(
     author_email="support@openwisp.io",
     description="Reusable django-app for outdoor and indoor mapping",
     long_description=open("README.rst").read(),
-    url="http://openwisp.org",
-    download_url="https://github.com/openwisp/django-loci/releases",
+    #url="http://openwisp.org",
+    #download_url="https://github.com/openwisp/django-loci/releases",
     platforms=["Platform Independent"],
     keywords=["django", "gis"],
     packages=find_packages(exclude=["tests*", "docs*"]),
