@@ -3,6 +3,7 @@ import logging
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.gis.db import models
+from django.contrib.gis.geos import Point
 from django.contrib.humanize.templatetags.humanize import ordinal
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
@@ -42,6 +43,20 @@ class AbstractLocation(TimeStampedEditableModel):
         help_text=_("is this location a moving object?"),
     )
     address = models.CharField(_("address"), db_index=True, max_length=256, blank=True)
+    
+    city = models.CharField(_("city"), max_length=100, blank=True)
+    state = models.CharField(_("state"), max_length=100, blank=True)
+    pincode = models.CharField(_("pincode"), max_length=10, blank=True)
+    circuit_id = models.CharField(_("circuit ID (if any)"), max_length=100, blank=True, null=True)
+    site_legal_code = models.CharField(_("site legal code"), max_length=100, blank=True, null=True)
+    latitude = models.DecimalField(
+        _("latitude"), max_digits=9, decimal_places=6, blank=True, null=True,
+        help_text=_("Latitude in decimal degrees")
+    )
+    longitude = models.DecimalField(
+        _("longitude"), max_digits=9, decimal_places=6, blank=True, null=True,
+        help_text=_("Longitude in decimal degrees")
+    )
     geometry = models.GeometryField(_("geometry"), blank=True, null=True)
 
     class Meta:
@@ -72,6 +87,21 @@ class AbstractLocation(TimeStampedEditableModel):
 
     # save method is automatically wrapped in atomic transaction
     def save(self, *args, **kwargs):
+        """
+        Automatically synchronize latitude/longitude and geometry.
+        - If latitude & longitude are set → create/update geometry
+        - If geometry is set → create/update latitude & longitude
+        """
+        try:
+            # ✅ Case 1: Lat/Lon exist → create or update geometry
+            if self.latitude is not None and self.longitude is not None:
+                self.geometry = Point(float(self.longitude), float(self.latitude))
+            # ✅ Case 2: Geometry exists → create/update lat/lon
+            elif self.geometry:
+                self.latitude = self.geometry.y
+                self.longitude = self.geometry.x
+        except (ValueError, TypeError):
+            raise ValidationError(_("Invalid latitude or longitude values."))
         # if location type is changed to outdoor, remove all associated floorplans
         if (
             self.type != self._initial_type

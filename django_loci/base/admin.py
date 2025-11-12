@@ -133,9 +133,9 @@ class AbstractFloorPlanInline(TimeReadonlyAdminMixin, admin.StackedInline):
 
 
 class AbstractLocationAdmin(TimeReadonlyAdminMixin, LeafletGeoAdmin):
-    list_display = ["name", "short_type", "is_mobile", "created", "modified"]
-    search_fields = ["name", "address"]
-    list_filter = ["type", "is_mobile"]
+    list_display = ["name", "short_type", "pincode", "is_mobile", "created", "modified"]
+    search_fields = ["name", "address", "circuit_id", "site_legal_code"]
+    list_filter = ["type", "is_mobile", "state", "city"]
     save_on_top = True
 
     # This allows apps which extend django-loci to load this template with less hacks
@@ -184,6 +184,13 @@ class AbstractLocationAdmin(TimeReadonlyAdminMixin, LeafletGeoAdmin):
                 "type": instance.type,
                 "is_mobile": instance.is_mobile,
                 "address": instance.address,
+                "city": instance.city,
+                "state": instance.state,
+                "pincode": instance.pincode,
+                "circuit_id": instance.circuit_id,
+                "site_legal_code": instance.site_legal_code,
+                "latitude": instance.latitude,
+                "longitude": instance.longitude,
                 "geometry": (
                     json.loads(instance.geometry.json) if instance.geometry else None
                 ),
@@ -245,6 +252,13 @@ class AbstractObjectLocationForm(ReadOnlyMixin, forms.ModelForm):
         help_text=_get_field("name").help_text,
     )
     address = forms.CharField(max_length=128, required=False)
+    city = forms.CharField(max_length=100, required=False)
+    state = forms.CharField(max_length=100, required=False)
+    pincode = forms.CharField(max_length=10, required=False)
+    circuit_id = forms.CharField(max_length=100, required=False)
+    site_legal_code = forms.CharField(max_length=100, required=False)
+    latitude = forms.DecimalField(max_digits=9, decimal_places=6, required=False)
+    longitude = forms.DecimalField(max_digits=9, decimal_places=6, required=False)
     type = forms.ChoiceField(
         choices=LOCATION_TYPES, required=True, help_text=_get_field("type").help_text
     )
@@ -301,6 +315,13 @@ class AbstractObjectLocationForm(ReadOnlyMixin, forms.ModelForm):
                     "is_mobile": location.is_mobile,
                     "name": location.name,
                     "address": location.address,
+                    "city": location.city,
+                    "state": location.state,
+                    "pincode": location.pincode,
+                    "circuit_id": location.circuit_id,
+                    "site_legal_code": location.site_legal_code,
+                    "latitude": location.latitude,
+                    "longitude": location.longitude,
                     "geometry": location.geometry,
                 }
             )
@@ -397,6 +418,13 @@ class AbstractObjectLocationForm(ReadOnlyMixin, forms.ModelForm):
         location.is_mobile = data.get("is_mobile", location.is_mobile)
         location.name = data.get("name") or location.name
         location.address = data.get("address") or location.address
+        location.city = data.get("city") or location.city
+        location.state = data.get("state") or location.state
+        location.pincode = data.get("pincode") or location.pincode
+        location.circuit_id = data.get("circuit_id") or location.circuit_id
+        location.site_legal_code = data.get("site_legal_code") or location.site_legal_code
+        location.latitude = data.get("latitude") or location.latitude
+        location.longitude = data.get("longitude") or location.longitude
         location.geometry = data.get("geometry") or location.geometry
         return location
 
@@ -455,6 +483,13 @@ class ObjectLocationMixin(TimeReadonlyAdminMixin):
                     "is_mobile",
                     "name",
                     "address",
+                    "city",
+                    "state",
+                    "pincode",
+                    "circuit_id",
+                    "site_legal_code",
+                    "latitude",
+                    "longitude",
                     "geometry",
                 ),
             },
