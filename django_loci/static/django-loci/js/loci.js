@@ -14,7 +14,8 @@ django.jQuery(function ($) {
     $allSections = $(".coords"),
     $geoEdit = $(
       ".field-name, .field-type, .field-is_mobile, " +
-        ".field-address, .field-geometry",
+        ".field-address, .field-city, .field-state, .field-pincode, " +
+        ".field-circuit_id, .field-site_legal_code, .field-geometry",
       ".loci.coords",
     ),
     $indoorRows = $(".indoor.coords .form-row:not(.field-indoor)"),
@@ -36,6 +37,21 @@ django.jQuery(function ($) {
     $name = $(".field-name input", ".loci.coords"),
     $address = $(
       ".coords .field-address input, #location_form .field-address input",
+    ),
+    $city = $(
+      ".coords .field-city input, #location_form .field-city input",
+    ),
+    $state = $(
+      ".coords .field-state input, #location_form .field-state input",
+    ),
+    $pincode = $(
+      ".coords .field-pincode input, #location_form .field-pincode input",
+    ),
+    $circuitId = $(
+      ".coords .field-circuit_id input, #location_form .field-circuit_id input",
+    ),
+    $siteLegalCode = $(
+      ".coords .field-site_legal_code input, #location_form .field-site_legal_code input",
     ),
     $geometryTextarea = $(".field-geometry textarea"),
     baseLocationJsonUrl = $("#loci-location-json-url").attr("data-url"),
@@ -100,9 +116,17 @@ django.jQuery(function ($) {
     $location.val("");
     $locationLabel.text("");
     $isMobile.prop("checked", false);
+
+    // clear all location-related fields
     $name.val("");
     $address.val("");
+    $city.val("");
+    $state.val("");
+    $pincode.val("");
+    $circuitId.val("");
+    $siteLegalCode.val("");
     $geometryTextarea.val("");
+
     $geoEdit.hide();
     $locationRow.hide();
     $locationSelection.show();
@@ -322,6 +346,11 @@ django.jQuery(function ($) {
         $type.val(data.type);
         $isMobile.prop("checked", data.is_mobile);
         $address.val(data.address);
+        $city.val(data.city || "");
+        $state.val(data.state || "");
+        $pincode.val(data.pincode || "");
+        $circuitId.val(data.circuit_id || "");
+        $siteLegalCode.val(data.site_legal_code || "");
         $geometryTextarea.val(
           data.geometry ? JSON.stringify(data.geometry) : "",
         );
